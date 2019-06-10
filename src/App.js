@@ -4,21 +4,79 @@ import Navigation from './components/Navigation/Navigation';
 import SignIn from './components/SignIn/SignIn';
 import Register from './components/Register/Register';
 import Logo from './components/Logo/Logo';
-import Rank from './components/Rank/Rank';
+// import Rank from './components/Rank/Rank';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import './App.css';
-
+ 
 const particlsOptions = {
   particles: {
-    number:{
-      value:70,
-      density:{
+    number: {
+      value: 80,
+      density: {
         enable: true,
-        value_area: 800  
+        value_area: 800
+      }
+    },
+    opacity: {
+      value: 0.2,
+      random: true
+    },
+    size: {
+      value: 3,
+      random: true,
+      anim: {
+        enable: true,
+        speed: 15,
+        size_min: 0,
+        sync: true
+      }
+    },
+    line_linked: {
+      enable: true,
+      distance: 150,
+      color: '#80d2ca',
+      opacity: 0.5,
+      width: 0.7
+    },
+    move: {
+      enable: true,
+      speed: 3,
+      direction: 'none',
+      random: false,
+      straight: false,
+      out_mode: 'out',
+      bounce: false,
+      attract: {
+        enable: false,
+        rotateX: 720,
+        rotateY: 1200
       }
     }
-  }
+  },
+  interactivity: {
+    events: {
+      onhover: {
+        enable: true,
+        mode: 'repulse'
+      },
+      onclick: {
+        enable: true,
+        mode: 'remove'
+      },
+      resize: true
+    },
+    modes: {
+      repulse: {
+        distance: 200,
+        duration: 0.4
+      },
+      remove: {
+        particles_nb: 2
+      }
+    }
+  },
+  retina_detect: true
 }
 const initialState = {
   input: '',
@@ -119,7 +177,6 @@ class App extends Component{
         { route === 'home' ?
           <div>
             <Logo/>
-            <Rank name={this.state.user.name} entries={this.state.user.entries}/>
             <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
             <FaceRecognition box={box} imgUrl={imgUrl}/>
           </div>
@@ -135,3 +192,4 @@ class App extends Component{
 }
 
 export default App;
+ 
