@@ -1,6 +1,36 @@
-.hover-bg-custom-blue:hover{
-    background-color: #1a3a40;
+.form-text-color{
+    color: white;
 }
-.hover-bg-custom-blue:focus{
-    background-color: #1a3a40;
+
+.input-text-color{
+    color: #ff53ff;
+}
+.input-border{
+    color: rgba(255, 83, 255, .9);
+}
+
+.input-border:hover,
+.input-border:focus{
+    color: #ffffff;
+}
+
+.button-color{
+    color: #3c48fa;
+    border-color: #3c48fa;
+}
+.button-color:hover,
+.button-color:focus{
+    color: #fff;
+    border-color: #fff;
+}
+.main-background-color{
+    background-color:#000;
+	background: hsla(260,40%,5%,.9);
+}
+
+.form-center{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

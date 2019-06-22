@@ -1,87 +1,25 @@
 import React, {Component} from 'react';
-import Particles from 'react-particles-js'; 
+import {css} from '@emotion/core';
+import {ClipLoader} from 'react-spinners';
+import Background from './components/Swirl/Background';
 import Navigation from './components/Navigation/Navigation';
 import SignIn from './components/SignIn/SignIn';
 import Register from './components/Register/Register';
-import Logo from './components/Logo/Logo';
-// import Rank from './components/Rank/Rank';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import './App.css';
- 
-const particlsOptions = {
-  particles: {
-    number: {
-      value: 80,
-      density: {
-        enable: true,
-        value_area: 800
-      }
-    },
-    opacity: {
-      value: 0.2,
-      random: true
-    },
-    size: {
-      value: 3,
-      random: true,
-      anim: {
-        enable: true,
-        speed: 15,
-        size_min: 0,
-        sync: true
-      }
-    },
-    line_linked: {
-      enable: true,
-      distance: 150,
-      color: '#80d2ca',
-      opacity: 0.5,
-      width: 0.7
-    },
-    move: {
-      enable: true,
-      speed: 3,
-      direction: 'none',
-      random: false,
-      straight: false,
-      out_mode: 'out',
-      bounce: false,
-      attract: {
-        enable: false,
-        rotateX: 720,
-        rotateY: 1200
-      }
-    }
-  },
-  interactivity: {
-    events: {
-      onhover: {
-        enable: true,
-        mode: 'repulse'
-      },
-      onclick: {
-        enable: true,
-        mode: 'remove'
-      },
-      resize: true
-    },
-    modes: {
-      repulse: {
-        distance: 200,
-        duration: 0.4
-      },
-      remove: {
-        particles_nb: 2
-      }
-    }
-  },
-  retina_detect: true
-}
+
+const override = css`
+    display: block;
+    margin: 0 auto;
+    border-color: red;
+`;
+
+
 const initialState = {
   input: '',
   imgUrl: '',
-  box: {},
+  boxes: [],
   route: 'signin',
   isSignedIn: false,
   user:{
@@ -90,7 +28,8 @@ const initialState = {
     email: '',
     entries: 0,
     joined: ''
-  }
+  },
+  loading: false
 }
 class App extends Component{
   constructor(){
@@ -109,28 +48,34 @@ class App extends Component{
     }})
   }
   claculateFaceLocation = (data) =>{
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
     const image = document.getElementById('inputImage');
     const width = Number(image.width);
     const height = Number(image.height);
-    
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
+
+    const clarifaiFaceRegions = data.outputs[0].data.regions;
+    const boxes = [];
+    clarifaiFaceRegions.forEach(region => {
+      let { bounding_box } = region.region_info;
+      boxes.push({
+        leftCol: bounding_box.left_col * width,
+        topRow: bounding_box.top_row * height,
+        rightCol: width - (bounding_box.right_col * width),
+        bottomRow: height - (bounding_box.bottom_row * height)
+      });
+    });
+    return boxes;
   }
 
-  displayFaceBox = (box) =>{
-    this.setState({box: box});
+  displayFaceBox = (boxes) =>{
+    console.log('boxes: ', boxes);
+    this.setState({boxes: boxes});
   }
   onInputChange = (event) =>{
     this.setState({input: event.target.value});
   }
 
   onButtonSubmit = ()=>{
-    this.setState({imgUrl: this.state.input});
+    this.setState({imgUrl: this.state.input, loading: true });
     fetch('https://whispering-stream-46813.herokuapp.com/imageUrl', {
           method: 'post',
           headers:{'Content-Type': 'application/json'},
@@ -141,6 +86,7 @@ class App extends Component{
     .then(response => response.json())
     .then((response) =>{
       if(response){
+        this.setState({loading: false});
         fetch('https://whispering-stream-46813.herokuapp.com/image', {
           method: 'put',
           headers:{'Content-Type': 'application/json'},
@@ -150,11 +96,11 @@ class App extends Component{
         })
         .then(response => response.json())
         .then(count =>{
-          this.setState(Object.assign(this.state.user, {entries: count }))
+          this.setState(Object.assign(this.state.user, {entries: count }));
         })
         .catch(console.log);
       }
-      this.displayFaceBox(this.claculateFaceLocation(response))
+      this.displayFaceBox(this.claculateFaceLocation(response));
     })
     .catch(err => console.log(err));
   }
@@ -169,22 +115,25 @@ class App extends Component{
   }
 
   render(){
-    const { isSignedIn, imgUrl, route, box} = this.state;
-    return (
-      <div className="App">
-        <Particles className='particles' params={particlsOptions} />
+     const { isSignedIn, imgUrl, route, boxes, loading} = this.state;
+        return (
+      <div className="tc vh-100">
+        <Background/>
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
         { route === 'home' ?
-          <div>
-            <Logo/>
+          <div className="w-100 h-100">
             <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-            <FaceRecognition box={box} imgUrl={imgUrl}/>
+            {
+               loading ? 
+              <ClipLoader loader={'GridLoader'} css={override} sizeUnit={'px'} size={100} color={'#ff53ff'} loading={loading}/>:
+              <FaceRecognition boxes={boxes} imgUrl={imgUrl}/>
+            }
           </div>
           : (
             route === 'signin' ? 
             <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange}/> : 
             <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
-          )
+          ) 
         }
       </div>
     );

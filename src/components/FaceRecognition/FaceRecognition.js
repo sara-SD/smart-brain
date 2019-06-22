@@ -1,12 +1,12 @@
 import React from 'react';
-import './FaceRecognition.css';
+import FaceBoxes from  '../FaceBoxes/FaceBoxes';
 
-const FaceRecognition = ({imgUrl, box}) => {
+const FaceRecognition = ({imgUrl, boxes}) => {
     return (
-        <div className='center ma'>
+        <div className='center ma1 flex flex-column justify-start items-center' style={{width: '500px', height:'60%' }}>
             <div className='absolute mt2'>
                 <img id='inputImage' alt='' src={imgUrl} width='500px' height='auto'/>
-                <div className='bounding-box' style={{top: box.topRow, right: box.rightCol, bottom: box.bottomRow, left: box.leftCol}}></div>
+                <FaceBoxes boxes={boxes}/>
             </div>
         </div>
     );

@@ -1,0 +1,8 @@
+.nav-link-color{
+    color:#3c48fa
+}
+
+.nav-link-color:hover,
+.nav-link-color:focus{
+    color: #ffffff
+}
